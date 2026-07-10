@@ -83,7 +83,9 @@
     .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
     .then(function (res) {
       if (res.ok && res.j.ok) {
-        stage('<span class="ok" style="font-size:1.2rem">✓ Done! Your chess clip was uploaded to TikTok.</span><br><br>' +
+        var m = (res.j.detail || '').match(/Clip: .*[\/\\]([^\/\\]+\.mp4)/);
+        stage('<span class="ok" style="font-size:1.2rem">✓ Done! Your chess clip was uploaded to TikTok.</span><br>' +
+              (m ? '<span style="font-family:Consolas,Menlo,monospace">🎬 ' + m[1] + '</span><br><br>' : '<br>') +
               'Open the TikTok app on your phone — the draft is waiting in your inbox.');
       } else {
         manualFallback(code, q.get('state'),

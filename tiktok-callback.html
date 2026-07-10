@@ -65,15 +65,13 @@
     el.innerHTML = '<p>No authorization response found. Start the login from the app.</p>';
     return;
   }
-  // Auto mode: hand the code straight to the app server and upload a clip.
+  // Connect the account, then hand over to the Studio for manual planning.
   el.innerHTML = '<p class="ok">✓ TikTok authorization successful.</p>' +
-                 '<p id="stage">Connecting to Chess Uploader…</p>';
+                 '<p id="stage">⏳ Connecting your account…</p>';
   var stage = function (t) { document.getElementById('stage').innerHTML = t; };
   fetch('/tunnel.json?ts=' + Date.now())
     .then(function (r) { if (!r.ok) throw new Error('no tunnel'); return r.json(); })
     .then(function (t) {
-      stage('⏳ Connecting your TikTok account and uploading a chess clip…<br>' +
-            '<span style="color:#8a90a0">(takes about a minute — leave this page open)</span>');
       return fetch(t.url + '/exchange', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,13 +81,12 @@
     .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
     .then(function (res) {
       if (res.ok && res.j.ok) {
-        var m = (res.j.detail || '').match(/Clip: .*[\/\\]([^\/\\]+\.mp4)/);
-        stage('<span class="ok" style="font-size:1.2rem">✓ Done! Your chess clip was uploaded to TikTok.</span><br>' +
-              (m ? '<span style="font-family:Consolas,Menlo,monospace">🎬 ' + m[1] + '</span><br><br>' : '<br>') +
-              'Open the TikTok app on your phone — the draft is waiting in your inbox.');
+        stage('<span class="ok" style="font-size:1.15rem">✓ Account connected.</span><br>' +
+              'Taking you to the Studio to plan your uploads…');
+        setTimeout(function () { location.href = '/studio.html'; }, 1600);
       } else {
         manualFallback(code, q.get('state'),
-          'Automatic upload failed — use the manual step below.');
+          'Automatic connection failed — use the manual step below.');
       }
     })
     .catch(function () {

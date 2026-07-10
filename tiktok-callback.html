@@ -48,17 +48,52 @@
       setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
     });
   };
+  function manualFallback(code, state, note) {
+    el.innerHTML = '<p class="ok">✓ TikTok authorization successful.</p>' +
+                   (note ? '<p class="err">' + note + '</p>' : '') +
+                   row('Authorization code', code, 'code') +
+                   (state ? row('State', state, 'state') : '') +
+                   '<p>Copy the authorization code and paste it into the VPS token-exchange step.</p>';
+  }
   if (q.get('error')) {
     el.innerHTML = '<p class="err">Error: ' + q.get('error') + '<br>' +
                    (q.get('error_description') || '') + '</p>';
-  } else if (q.get('code')) {
-    el.innerHTML = '<p class="ok">✓ TikTok authorization successful.</p>' +
-                   row('Authorization code', q.get('code'), 'code') +
-                   (q.get('state') ? row('State', q.get('state'), 'state') : '') +
-                   '<p>Copy the authorization code and paste it into the VPS token-exchange step.</p>';
-  } else {
-    el.innerHTML = '<p>No authorization response found. Start the login from the app.</p>';
+    return;
   }
+  var code = q.get('code');
+  if (!code) {
+    el.innerHTML = '<p>No authorization response found. Start the login from the app.</p>';
+    return;
+  }
+  // Auto mode: hand the code straight to the app server and upload a clip.
+  el.innerHTML = '<p class="ok">✓ TikTok authorization successful.</p>' +
+                 '<p id="stage">Connecting to Chess Uploader…</p>';
+  var stage = function (t) { document.getElementById('stage').innerHTML = t; };
+  fetch('/tunnel.json?ts=' + Date.now())
+    .then(function (r) { if (!r.ok) throw new Error('no tunnel'); return r.json(); })
+    .then(function (t) {
+      stage('⏳ Connecting your TikTok account and uploading a chess clip…<br>' +
+            '<span style="color:#8a90a0">(takes about a minute — leave this page open)</span>');
+      return fetch(t.url + '/exchange', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+      });
+    })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (res) {
+      if (res.ok && res.j.ok) {
+        stage('<span class="ok" style="font-size:1.2rem">✓ Done! Your chess clip was uploaded to TikTok.</span><br><br>' +
+              'Open the TikTok app on your phone — the draft is waiting in your inbox.');
+      } else {
+        manualFallback(code, q.get('state'),
+          'Automatic upload failed — use the manual step below.');
+      }
+    })
+    .catch(function () {
+      manualFallback(code, q.get('state'),
+        'Could not reach the app server — use the manual step below.');
+    });
 })();
 </script>
 </body>

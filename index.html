@@ -16,6 +16,10 @@
   ul { color:#a8adb8; line-height:1.7; }
   a  { color:#6ea2ff; text-decoration:none; }
   a:hover { text-decoration:underline; }
+  .connect { display:inline-block; margin:1.4rem 0 .4rem; background:#fe2c55;
+             color:#fff; font-size:1.05rem; font-weight:600; border:0;
+             border-radius:10px; padding:.85rem 1.6rem; cursor:pointer; }
+  .connect:hover { background:#e0264b; }
   footer { margin-top:2rem; padding-top:1rem; border-top:1px solid #2a2e38;
            font-size:.85rem; color:#8a90a0; }
 </style>
@@ -34,6 +38,24 @@
     <li>Videos are delivered to the creator's TikTok account for review and posting.</li>
     <li>No third-party or user-generated content is involved.</li>
   </ul>
+  <button class="connect" onclick="connectTikTok()">Connect TikTok</button>
+  <p style="font-size:.85rem; color:#8a90a0; margin-top:.2rem;">
+    Signs in with TikTok (Login Kit) and authorizes this app to upload
+    the creator's own clips to their account.</p>
+  <script>
+    function connectTikTok() {
+      var bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      var state = btoa(String.fromCharCode.apply(null, bytes))
+                    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      location.href = 'https://www.tiktok.com/v2/auth/authorize/'
+        + '?client_key=sbaw8tel8x3wn39oh5'
+        + '&scope=' + encodeURIComponent('user.info.basic,video.upload')
+        + '&response_type=code'
+        + '&redirect_uri=' + encodeURIComponent('https://mixmasterfunk900-cmyk.github.io/tiktok-callback.html')
+        + '&state=' + state;
+    }
+  </script>
   <footer>
     <a href="/Open-Claw-V1/terms-of-service.html">Terms of Service</a> ·
     <a href="/Open-Claw-V1/privacy-policy.html">Privacy Policy</a><br>

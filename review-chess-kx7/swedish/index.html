@@ -1,0 +1,84 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Swedish Battle - first draft</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; background:#0d1117; color:#e6edf3;
+         font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+  .wrap { max-width:1400px; margin:0 auto; padding:28px 20px 80px; }
+  h1 { font-size:1.9rem; margin:0 0 4px; }
+  .sub { color:#8b949e; margin:0 0 22px; }
+  video { width:100%; background:#000; border-radius:10px; display:block; }
+  .meta { display:flex; gap:18px; flex-wrap:wrap; color:#8b949e;
+           font-size:.9rem; margin:10px 0 30px; }
+  .meta b { color:#e6edf3; font-weight:600; }
+  h2 { font-size:1.15rem; margin:34px 0 4px; }
+  .note { color:#8b949e; font-size:.9rem; margin:0 0 18px; }
+  .grid { display:grid; gap:16px;
+           grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); }
+  .card { margin:0; background:#161b22; border:1px solid #30363d;
+           border-radius:10px; overflow:hidden; }
+  .card img { width:100%; display:block; aspect-ratio:16/9; object-fit:cover; }
+  .missing { aspect-ratio:16/9; display:grid; place-items:center; color:#f85149;
+              background:#1c2128; font-size:.9rem; }
+  figcaption { padding:11px 13px; font-size:.88rem; }
+  figcaption b { display:block; margin-bottom:3px; }
+  figcaption span { color:#8b949e; }
+  .box { background:#161b22; border:1px solid #30363d; border-left:3px solid #3fb950;
+          border-radius:8px; padding:14px 16px; margin:26px 0; font-size:.92rem; }
+  .box.warn { border-left-color:#d29922; }
+  code { background:#21262d; padding:1px 5px; border-radius:4px; font-size:.86em; }
+</style>
+<div class="wrap">
+  <h1>The Swedish Battle</h1>
+  <p class="sub">First draft &mdash; not uploaded anywhere. Nothing goes to YouTube without your say-so.</p>
+
+  <video controls preload="metadata" poster="c1_flag_blue_gold.jpg">
+    <source src="swedish_battle_v2.mp4" type="video/mp4">
+  </video>
+  <div class="meta">
+    <span><b>1920&times;1080</b> full res</span>
+    <span><b>12:57</b></span>
+    <span><b>76 MB</b> &middot; CRF 26, 1080p</span>
+    <span>TrilleLillen3_0 <b>1314</b> vs viktorjarvoll <b>1317</b></span>
+  </div>
+
+  <div class="box">
+    <b>Cut list</b> &mdash; every timestamp read off the nameplates, not the transcript
+    (captions on this VOD run 841s behind the file).<br>
+    <b>0:00&ndash;0:13</b> cold open &mdash; &ldquo;let&rsquo;s watch the two people in the chat duke it out. Both from Sweden.&rdquo;<br>
+    <b>0:13&ndash;0:45</b> setup &mdash; &ldquo;would you be interested in playing chess guy&rdquo; &rarr; &ldquo;good luck, gentlemen.&rdquo;<br>
+    <b>0:50&ndash;10:53</b> the full game, uncut, eval meter live<br>
+    <b>10:53&ndash;12:57</b> &ldquo;GG&rsquo;S. What a game.&rdquo; + the review screen and the 2100 estimate<br>
+    1.0s crossfades on both cuts, video and audio.
+  </div>
+
+  <div class="box">
+    <b>Eval meter verified.</b> Measured the rendered bar against the engine series at
+    8 points across the game: correlation <code>1.000</code>, every delta under 0.2%.
+    It retires the instant Viktor flags, so it is not sitting over the review screen.
+  </div>
+
+  <h2>Thumbnail concepts</h2>
+  <p class="note">Five directions, five different colour worlds, Sweden in every one.
+     No text baked in yet &mdash; pick a direction first, then I&rsquo;ll do the title treatment.</p>
+  <div class="grid">
+    <figure class="card">
+  <img src="c1_flag_blue_gold.jpg" alt="Flag Blue &amp; Gold">
+  <figcaption><b>Flag Blue &amp; Gold</b><span>Cobalt blue and molten gold. The Swedish flag as a stadium banner, two kings facing off.</span></figcaption>
+</figure><figure class="card">
+  <img src="c2_nordic_ice.jpg" alt="Nordic Ice">
+  <figcaption><b>Nordic Ice</b><span>Glacial cyan and arctic white. Board carved from cracked ice, flag frozen in behind.</span></figcaption>
+</figure><figure class="card">
+  <img src="c3_aurora_night.jpg" alt="Aurora Night">
+  <figcaption><b>Aurora Night</b><span>Neon green and violet on near-black. Aurora over pine forest, lit from the board up.</span></figcaption>
+</figure><figure class="card">
+  <img src="c4_falu_red_cottage.jpg" alt="Falu Red Cottage">
+  <figcaption><b>Falu Red Cottage</b><span>Falu red, crisp white, summer green. Classic Swedish cottage, sunlit and warm.</span></figcaption>
+</figure><figure class="card">
+  <img src="c5_viking_steel.jpg" alt="Viking Steel">
+  <figcaption><b>Viking Steel</b><span>Blood crimson and gunmetal. Iron board, Norse kings, embers, weathered banner.</span></figcaption>
+</figure>
+  </div>
+</div>

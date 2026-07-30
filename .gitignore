@@ -1,0 +1,11 @@
+# Review previews are served off the VPS over a cloudflared tunnel and are
+# never committed -- see MEDIA_DIR in /root/chess/publish_review.py. Committing
+# every regenerated preview took this repo to ~1.8 GB and broke the deploy.
+#
+# Scoped to the generated page directory on purpose: review-chess-kx7/swedish/
+# is a hand-made static page whose own small assets DO belong in git.
+/review-chess-kx7/*.mp4
+/review-chess-kx7/*.jpg
+/review-chess-kx7/*.jpeg
+/review-chess-kx7/*.png
+/review-chess-kx7/*.webm

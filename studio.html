@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Uploader — Studio</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         background:#0f1115; color:#e8e8ea; margin:0; padding:2rem 1rem;
+         display:flex; justify-content:center; }
+  .card { max-width:680px; width:100%; background:#181b22; border:1px solid #2a2e38;
+          border-radius:12px; padding:2rem; }
+  h1 { font-size:1.5rem; margin:0 0 .2rem; }
+  .sub { color:#5dd39e; font-size:.9rem; margin-bottom:1.4rem; }
+  p, label { color:#a8adb8; line-height:1.5; }
+  .label { font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;
+           color:#8a90a0; margin:1.3rem 0 .5rem; }
+  .clip { display:flex; align-items:center; gap:.7rem; background:#0d0f13;
+          border:1px solid #2a2e38; border-radius:8px; padding:.65rem .9rem;
+          margin-bottom:.45rem; cursor:pointer; }
+  .clip:hover { border-color:#3d4350; }
+  .clip.sel { border-color:#2f6fed; background:#101623; }
+  .clip .name { font-family:Consolas,Menlo,monospace; font-size:.88rem; flex:1; }
+  .clip .mb { color:#8a90a0; font-size:.8rem; }
+  textarea { width:100%; box-sizing:border-box; background:#0d0f13; color:#e8e8ea;
+             border:1px solid #2a2e38; border-radius:8px; padding:.7rem .8rem;
+             font-size:.95rem; font-family:inherit; resize:vertical; min-height:64px; }
+  .row { display:flex; gap:.8rem; align-items:center; flex-wrap:wrap; margin-top:.4rem; }
+  input[type=datetime-local] { background:#0d0f13; color:#e8e8ea; border:1px solid #2a2e38;
+             border-radius:8px; padding:.55rem .7rem; font-size:.9rem; }
+  .btn { border:0; border-radius:9px; padding:.75rem 1.4rem; font-size:.95rem;
+         font-weight:600; cursor:pointer; }
+  .primary { background:#fe2c55; color:#fff; }
+  .primary:hover { background:#e0264b; }
+  .secondary { background:#2f6fed; color:#fff; }
+  .secondary:hover { background:#2559c4; }
+  .btn:disabled { opacity:.45; cursor:default; }
+  #status { margin-top:1.1rem; line-height:1.5; }
+  .ok { color:#5dd39e; } .err { color:#ff6b6b; }
+  footer { margin-top:1.6rem; padding-top:1rem; border-top:1px solid #2a2e38;
+           font-size:.8rem; color:#8a90a0; }
+  a { color:#6ea2ff; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🎬 Studio</h1>
+  <div class="sub" id="connstate">TikTok account connected</div>
+
+  <div class="label">1 · Select a clip from your rendered backlog</div>
+  <div id="clips"><p>Loading your clips…</p></div>
+
+  <div class="label">2 · Caption</div>
+  <textarea id="caption" maxlength="150"
+    placeholder="Write your caption… e.g. He never saw the knight coming ♞ #chess"></textarea>
+
+  <div class="label">3 · Post to TikTok</div>
+  <div class="row">
+    <button class="btn primary" id="nowbtn" onclick="send('now')" disabled>⬆ Upload now</button>
+    <span style="color:#8a90a0">or</span>
+    <input type="datetime-local" id="schedtime">
+    <button class="btn secondary" id="schedbtn" onclick="send('sched')" disabled>🗓 Schedule</button>
+  </div>
+
+  <div id="status"></div>
+
+  <footer>Chess Uploader · <a href="/">Home</a> ·
+    Drafts are delivered to your TikTok inbox for final review before posting.</footer>
+</div>
+<script>
+var API = null, SELECTED = null;
+
+function el(id) { return document.getElementById(id); }
+function setButtons(on) { el('nowbtn').disabled = el('schedbtn').disabled = !on; }
+
+fetch('/tunnel.json?ts=' + Date.now())
+  .then(function (r) { return r.json(); })
+  .then(function (t) { API = t.url; return fetch(API + '/queue'); })
+  .then(function (r) { return r.json(); })
+  .then(function (q) {
+    if (!q.count) { el('clips').innerHTML = '<p>No clips waiting — the render queue is empty.</p>'; return; }
+    el('clips').innerHTML = q.clips.map(function (c) {
+      return '<div class="clip" data-name="' + c.name + '" onclick="pick(this)">' +
+             '<span>🎞</span><span class="name">' + c.name + '</span>' +
+             '<span class="mb">' + c.mb + ' MB</span></div>';
+    }).join('') +
+    '<p style="font-size:.82rem;color:#8a90a0">' + q.count +
+    ' clips in the backlog, rendered from my own chess streams.</p>';
+  })
+  .catch(function () {
+    el('clips').innerHTML = '<p class="err">Could not reach the app server.</p>';
+  });
+
+function pick(div) {
+  var all = document.querySelectorAll('.clip');
+  for (var i = 0; i < all.length; i++) all[i].className = 'clip';
+  div.className = 'clip sel';
+  SELECTED = div.getAttribute('data-name');
+  setButtons(true);
+}
+
+function send(mode) {
+  if (!SELECTED || !API) return;
+  var when = 'now';
+  if (mode === 'sched') {
+    var v = el('schedtime').value;
+    if (!v) { el('status').innerHTML = '<span class="err">Pick a date and time first.</span>'; return; }
+    when = String(Math.floor(new Date(v).getTime() / 1000));
+  }
+  setButtons(false);
+  el('status').innerHTML = mode === 'now'
+    ? '⏳ Uploading <b>' + SELECTED + '</b> to TikTok… (about a minute)'
+    : '⏳ Scheduling <b>' + SELECTED + '</b>…';
+  fetch(API + '/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clip: SELECTED, caption: el('caption').value, when: when })
+  })
+  .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+  .then(function (res) {
+    if (res.ok && res.j.ok && res.j.scheduled) {
+      el('status').innerHTML = '<span class="ok">🗓 Scheduled!</span> <b>' + SELECTED +
+        '</b> will be sent to your TikTok inbox at ' +
+        new Date(res.j.due * 1000).toLocaleString() + '.';
+    } else if (res.ok && res.j.ok) {
+      el('status').innerHTML = '<span class="ok" style="font-size:1.1rem">✓ Uploaded!</span> <b>' +
+        SELECTED + '</b> is now a draft in your TikTok inbox — open the TikTok app to review and post it.';
+    } else {
+      el('status').innerHTML = '<span class="err">Upload failed — try again.</span>';
+      setButtons(true);
+    }
+  })
+  .catch(function () {
+    el('status').innerHTML = '<span class="err">Could not reach the app server.</span>';
+    setButtons(true);
+  });
+}
+</script>
+</body>
+</html>
